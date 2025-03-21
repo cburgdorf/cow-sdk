@@ -12,8 +12,9 @@ export async function postCoWProtocolTrade(
   signer: Signer,
   appData: AppDataInfo,
   params: LimitTradeParameters,
+  preSendHook?: (order: OrderCreation) => Promise<boolean>,
   networkCostsAmount = '0',
-  _signingScheme: SigningScheme = SigningScheme.EIP712
+  _signingScheme: SigningScheme = SigningScheme.EIP712,
 ): Promise<string> {
   if (getIsEthFlowOrder(params)) {
     const quoteId = params.quoteId
@@ -60,6 +61,12 @@ export async function postCoWProtocolTrade(
     quoteId,
     appData: fullAppData,
     appDataHash: appDataKeccak256,
+  }
+
+  log('Executing pre-send hook...')
+  if (preSendHook && !(await preSendHook(orderBody))) {
+    log('Pre-send hook returned false, order not sent')
+    return ''
   }
 
   log('Posting order...')

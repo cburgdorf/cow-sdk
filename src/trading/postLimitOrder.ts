@@ -1,6 +1,6 @@
 import { LimitOrderAdvancedSettings, LimitOrderParameters } from './types'
 import { log } from './consts'
-import { OrderBookApi } from '../order-book'
+import { OrderBookApi, OrderCreation } from '../order-book'
 import { buildAppData } from './appDataUtils'
 import { postCoWProtocolTrade } from './postCoWProtocolTrade'
 import { getSigner } from './utils'
@@ -8,7 +8,8 @@ import { getSigner } from './utils'
 export async function postLimitOrder(
   params: LimitOrderParameters,
   advancedSettings?: LimitOrderAdvancedSettings,
-  _orderBookApi?: OrderBookApi
+  _orderBookApi?: OrderBookApi,
+  preSendHook?: (order: OrderCreation) => Promise<boolean>
 ): Promise<string> {
   const {
     appCode,
@@ -39,5 +40,5 @@ export async function postLimitOrder(
     advancedSettings?.appData
   )
 
-  return postCoWProtocolTrade(orderBookApi, signer, appDataInfo, params)
+  return postCoWProtocolTrade(orderBookApi, signer, appDataInfo, params, preSendHook)
 }
