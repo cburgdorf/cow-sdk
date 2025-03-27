@@ -1,6 +1,6 @@
 import { LimitOrderAdvancedSettings, LimitOrderParameters } from './types'
 import { log } from './consts'
-import { OrderBookApi, OrderCreation } from '../order-book'
+import { OrderBookApi, OrderCreation, SigningScheme } from '../order-book'
 import { buildAppData } from './appDataUtils'
 import { postCoWProtocolTrade } from './postCoWProtocolTrade'
 import { getSigner } from './utils'
@@ -9,7 +9,9 @@ export async function postLimitOrder(
   params: LimitOrderParameters,
   advancedSettings?: LimitOrderAdvancedSettings,
   _orderBookApi?: OrderBookApi,
-  preSendHook?: (order: OrderCreation) => Promise<boolean>
+  preSendHook?: (order: OrderCreation) => Promise<boolean>,
+  networkCostsAmount = '0',
+  _signingScheme: SigningScheme = SigningScheme.EIP712,
 ): Promise<string> {
   const {
     appCode,
@@ -39,6 +41,6 @@ export async function postLimitOrder(
     },
     advancedSettings?.appData
   )
-
-  return postCoWProtocolTrade(orderBookApi, signer, appDataInfo, params, preSendHook)
+  console.log("signing scheme in postLimitOrder deeper", _signingScheme)
+  return postCoWProtocolTrade(orderBookApi, signer, appDataInfo, params, preSendHook, networkCostsAmount, _signingScheme)
 }

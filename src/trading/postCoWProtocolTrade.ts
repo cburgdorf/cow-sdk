@@ -33,12 +33,21 @@ export async function postCoWProtocolTrade(
       throw new Error('quoteId is required for EthFlow orders')
     }
   }
-
   const { quoteId = null } = params
   const { appDataKeccak256, fullAppData } = appData
 
   const chainId = orderBookApi.context.chainId
-  const from = await signer.getAddress()
+  let from: string;
+  if (_signingScheme === SigningScheme.EIP1271) {
+    if (typeof params.receiver !== 'string') {
+      throw new Error('receiver is required for EIP1271 signing scheme')
+    }
+    // FIXME: This is a hack to give us a simple way to set the from address for EIP1271 orders
+    from = params.receiver
+  } else {
+    from = await signer.getAddress()
+  }
+
   const orderToSign = getOrderToSign({ from, networkCostsAmount }, params, appData.appDataKeccak256)
 
   log('Signing order...')
@@ -57,7 +66,7 @@ export async function postCoWProtocolTrade(
     ...orderToSign,
     from,
     signature,
-    signingScheme,
+    signingScheme: _signingScheme === SigningScheme.EIP1271 ? SigningScheme.EIP1271 : signingScheme,
     quoteId,
     appData: fullAppData,
     appDataHash: appDataKeccak256,

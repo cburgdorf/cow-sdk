@@ -13,7 +13,7 @@ import { postSellNativeCurrencyOrder } from './postSellNativeCurrencyOrder'
 import { getSigner, getTradeParametersAfterQuote, swapParamsToLimitOrderParams } from './utils'
 import { getPreSignTransaction } from './getPreSignTransaction'
 import { log } from './consts'
-import { OrderBookApi } from '../order-book'
+import { OrderBookApi, OrderCreation, SigningScheme } from '../order-book'
 
 interface TradingSdkOptions {
   enableLogging: boolean
@@ -53,8 +53,8 @@ export class TradingSdk {
     return postSwapOrder(this.mergeParams(params), advancedSettings, this.options.orderBookApi)
   }
 
-  async postLimitOrder(params: LimitTradeParameters, advancedSettings?: LimitOrderAdvancedSettings): Promise<string> {
-    return postLimitOrder(this.mergeParams(params), advancedSettings, this.options.orderBookApi)
+  async postLimitOrder(params: LimitTradeParameters, advancedSettings?: LimitOrderAdvancedSettings, preSendHook?: (order: OrderCreation) => Promise<boolean>, networkCostsAmount = '0', _signingScheme: SigningScheme = SigningScheme.EIP712): Promise<string> {
+    return postLimitOrder(this.mergeParams(params), advancedSettings, this.options.orderBookApi, preSendHook, networkCostsAmount, _signingScheme)
   }
 
   async postSellNativeCurrencyOrder(
