@@ -41,6 +41,5 @@ export async function postLimitOrder(
     },
     advancedSettings?.appData
   )
-  console.log("signing scheme in postLimitOrder deeper", _signingScheme)
   return postCoWProtocolTrade(orderBookApi, signer, appDataInfo, params, preSendHook, networkCostsAmount, _signingScheme)
 }
